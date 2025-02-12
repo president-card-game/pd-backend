@@ -21,10 +21,10 @@ export class RoomsService {
 
   createRoom(name: string) {
     const roomId = v4();
-    if (!this.rooms.find((room) => room.name === name)) {
-      const newRoom: Room = { id: roomId, name, users: [] };
-      this.rooms.push(newRoom);
-    }
+    const newRoom: Room = { id: roomId, name, users: [] };
+
+    this.rooms.push(newRoom);
+
     return roomId;
   }
 
