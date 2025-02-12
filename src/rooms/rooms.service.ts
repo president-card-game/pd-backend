@@ -52,7 +52,7 @@ export class RoomsService {
     const userIsAlreadyInTheRoom = !room?.users.some((user) => user.id === userId);
 
     if (room && userIsAlreadyInTheRoom) {
-      room.users.push({ id: userId, name: userId, isReady: false, isHost });
+      room.users.push({ id: userId, name: userId, isReady: isHost, isHost });
     }
 
     return room;
