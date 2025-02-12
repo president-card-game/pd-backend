@@ -46,11 +46,15 @@ export class RoomsService {
     return this.rooms.find((r) => r.users.some((user) => user.id === userId));
   }
 
-  addUserToRoom({ roomId, userId, isHost }: { roomId: string; userId: string; isHost: boolean }) {
+  addUserToRoom({ roomId, userId }: { roomId: string; userId: string }) {
     const room = this.getRoomById(roomId);
-    if (room && !room.users.some((user) => user.id === userId)) {
+    const isHost = !room?.users.length;
+    const userIsAlreadyInTheRoom = !room?.users.some((user) => user.id === userId);
+
+    if (room && userIsAlreadyInTheRoom) {
       room.users.push({ id: userId, name: userId, isReady: false, isHost });
     }
+
     return room;
   }
 

@@ -24,11 +24,12 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   createRoom(@MessageBody() roomName: string, @ConnectedSocket() client: Socket) {
     const roomId = this.roomsService.createRoom(roomName);
     client.emit('roomCreated', { id: roomId, name: roomName });
+    console.log(`${client.id} create the room ${roomId}`);
   }
 
   @SubscribeMessage('joinRoom')
-  async joinRoom(@MessageBody() data: { roomId: string; isHost: boolean }, @ConnectedSocket() client: Socket) {
-    const room = this.roomsService.addUserToRoom({ roomId: data.roomId, userId: client.id, isHost: data.isHost });
+  async joinRoom(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
+    const room = this.roomsService.addUserToRoom({ roomId: data.roomId, userId: client.id });
     if (!room) {
       client.emit('errorMessage', `Sala ${data.roomId} não existe`);
       return;
