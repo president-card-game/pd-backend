@@ -2,10 +2,7 @@
 
 import { Server, Socket } from 'socket.io';
 
-import {
-    ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage,
-    WebSocketGateway, WebSocketServer
-} from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 import { RoomsService } from './rooms.service';
 
@@ -70,17 +67,6 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!room) throw new Error('Sala não encontrada');
 
     this.server.to(roomId).emit('roomUsers', room.users);
-  }
-
-  @SubscribeMessage('getMe')
-  getMyOwnId(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
-    const room = this.roomsService.getRoomById(roomId);
-    if (!room) throw new Error('Sala não encontrada');
-
-    const user = this.roomsService.getUserById(client.id);
-    if (!user) throw new Error('Usuário não encontrado');
-
-    client.emit('me', user);
   }
 
   roomsUpdate() {
