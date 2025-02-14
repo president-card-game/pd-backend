@@ -1,0 +1,38 @@
+name: Análise SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sonarcloud:
+    name: Análise com SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Executar testes e gerar relatório de cobertura
+        run: npm run test:coverage
+
+      - name: Análise com SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=pd-backend
+            -Dsonar.organization=president-card-game
+            -Dsonar.sources=src
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
