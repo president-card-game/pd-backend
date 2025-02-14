@@ -19,7 +19,7 @@ jobs:
         run: |
           PR_AUTHOR=$(jq -r ".pull_request.user.login" "$GITHUB_EVENT_PATH")
           if [ "$PR_AUTHOR" == "$GITHUB_ACTOR" ]; then
-            echo "The PR author is not allowed to merge!"
+            echo "O autor do PR não pode fazer merge!"
             exit 1
           fi
 
