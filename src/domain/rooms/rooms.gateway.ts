@@ -50,8 +50,8 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('toggleUserReady')
   toggleUserReady(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; isReady: boolean }) {
-    const room = this.roomsService.toggleUserReady({ roomId: data.roomId, userId: client.id, isReady: data.isReady });
-    this.server.to(data.roomId).emit('roomUsers', room.users);
+    const users = this.roomsService.toggleUserReady({ roomId: data.roomId, userId: client.id, isReady: data.isReady });
+    this.server.to(data.roomId).emit('roomUsers', users);
   }
 
   @SubscribeMessage('getRooms')
