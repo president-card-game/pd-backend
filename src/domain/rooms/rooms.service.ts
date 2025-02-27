@@ -1,19 +1,7 @@
 import { v4 } from 'uuid';
 
 import { Injectable } from '@nestjs/common';
-
-interface User {
-  id: string;
-  name: string;
-  isReady: boolean;
-  isHost: boolean;
-}
-
-interface Room {
-  id: string;
-  name: string;
-  users: User[];
-}
+import { Room, User } from './room.interface';
 
 @Injectable()
 export class RoomsService {
@@ -21,7 +9,7 @@ export class RoomsService {
 
   createRoom(name: string) {
     const roomId = v4();
-    const newRoom: Room = { id: roomId, name, users: [] };
+    const newRoom: Room = { id: roomId, name, users: [], isPlaying: false };
 
     this.rooms.push(newRoom);
 
@@ -38,7 +26,7 @@ export class RoomsService {
 
   getUserById(id: string): User | undefined {
     const room = this.rooms.find((r) => r.users.some((user) => user.id === id));
-    if (!room) return undefined;
+    if (!room) return;
     return room.users.find((user) => user.id === id);
   }
 
@@ -59,21 +47,25 @@ export class RoomsService {
   }
 
   toggleUserReady({ roomId, userId, isReady }: { roomId: string; userId: string; isReady: boolean }) {
-    console.log(`Toggling user ${userId} ready status to ${isReady} in room ${roomId}`);
     const room = this.getRoomById(roomId);
     if (!room) throw new Error('Sala não encontrada');
 
     const user = room.users.find((user) => user.id === userId);
     if (!user) throw new Error('Usuário não encontrado');
 
-    console.log({ isReady });
-    console.log({ newIsReady: !isReady });
+    const updatedUsers = room.users.map((user) => (user.id === userId ? { ...user, isReady: !isReady } : user));
 
-    const updatedRoom = {
-      ...room,
-      users: room.users.map((user) => (user.id === userId ? { ...user, isReady: !isReady } : user)),
-    };
+    this.updateRoomProperties(room.id, { users: updatedUsers });
 
+    return updatedUsers;
+  }
+
+  updateRoomProperties(roomId: string, newValues: Partial<Room>) {
+    const room = this.getRoomById(roomId);
+
+    if (!room) return;
+
+    const updatedRoom = { ...room, ...newValues };
     this.rooms = [...this.rooms.filter((r) => r.id !== roomId), updatedRoom];
 
     return updatedRoom;
@@ -84,9 +76,11 @@ export class RoomsService {
 
     if (!room) return;
 
-    room.users = room.users.filter((user) => user.id !== userId);
-    this.rooms = [...this.rooms.filter((r) => r.id !== roomId), room];
-    return room;
+    const updatedUsers = room.users.filter((user) => user.id !== userId);
+
+    const updatedRoom = this.updateRoomProperties(room.id, { users: updatedUsers });
+
+    return updatedRoom;
   }
 
   removeUserFromRoomWhenDisconnected(userId: string): Room | undefined {
@@ -94,8 +88,10 @@ export class RoomsService {
 
     if (!room) return;
 
-    room.users = room.users.filter((user) => user.id !== userId);
-    this.rooms = [...this.rooms.filter((r) => r.id !== room.id), room];
-    return room;
+    const updatedUsers = room.users.filter((user) => user.id !== userId);
+
+    const updatedRoom = this.updateRoomProperties(room.id, { users: updatedUsers });
+
+    return updatedRoom;
   }
 }
