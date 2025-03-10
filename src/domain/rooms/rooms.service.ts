@@ -1,27 +1,14 @@
 import { v4 } from 'uuid';
 
 import { Injectable } from '@nestjs/common';
-
-interface User {
-  id: string;
-  name: string;
-  isReady: boolean;
-  isHost: boolean;
-}
-
-interface Room {
-  id: string;
-  name: string;
-  users: User[];
-}
-
+import { Room, User } from './rooms.interface';
 @Injectable()
 export class RoomsService {
   private rooms: Room[] = [];
 
   createRoom(name: string) {
     const roomId = v4();
-    const newRoom: Room = { id: roomId, name, users: [] };
+    const newRoom: Room = { id: roomId, name, users: [], isPlaying: false };
 
     this.rooms.push(newRoom);
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { RoomsModule } from '../rooms/rooms.module';
+import { RoomsModule } from '../rooms';
 import { GameGateway } from './game.gateway';
 import { GameService } from './game.service';
 
