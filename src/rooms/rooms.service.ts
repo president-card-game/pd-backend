@@ -58,34 +58,35 @@ export class RoomsService {
     return room;
   }
 
-  toggleUserReady({ roomId, userId, isReady }: { roomId: string; userId: string; isReady: boolean }) {
-    console.log(`Toggling user ${userId} ready status to ${isReady} in room ${roomId}`);
+  toggleUserReady(userId: string): Room {
+    const room = this.findRoomByUserId(userId);
+    if (!room) throw new Error('Sala ou jogador não encontrado');
+
+    const updatedUsers = room.users.map((user) => (user.id === userId ? { ...user, isReady: !user.isReady } : user));
+
+    const updatedRoom = this.updateRoomProperties(room.id, { users: updatedUsers }) as Room;
+
+    return updatedRoom;
+  }
+
+  updateRoomProperties(roomId: string, newValues: Partial<Room>): Room | undefined {
     const room = this.getRoomById(roomId);
-    if (!room) throw new Error('Sala não encontrada');
 
-    const user = room.users.find((user) => user.id === userId);
-    if (!user) throw new Error('Usuário não encontrado');
+    if (!room) return;
 
-    console.log({ isReady });
-    console.log({ newIsReady: !isReady });
-
-    const updatedRoom = {
-      ...room,
-      users: room.users.map((user) => (user.id === userId ? { ...user, isReady: !isReady } : user)),
-    };
-
+    const updatedRoom = { ...room, ...newValues };
     this.rooms = [...this.rooms.filter((r) => r.id !== roomId), updatedRoom];
 
     return updatedRoom;
   }
 
-  removeUserFromRoom(roomId: string, userId: string) {
-    const room = this.getRoomById(roomId);
+  removeUserFromRoom(userId: string) {
+    const room = this.findRoomByUserId(userId);
 
     if (!room) return;
 
     room.users = room.users.filter((user) => user.id !== userId);
-    this.rooms = [...this.rooms.filter((r) => r.id !== roomId), room];
+    this.rooms = [...this.rooms.filter((r) => r.id !== room.id), room];
     return room;
   }
 
